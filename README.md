@@ -1,4 +1,4 @@
-CatacombSDL
+CatacombVita (WIP)
 ===========
 
 CatacombSDL is a source port for The Catacomb (also known as Catacomb II). This
