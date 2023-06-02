@@ -21,6 +21,7 @@
 */
 
 #include "PCRLIB.H"
+#include "catdefs.h"
 
 #define maxpics 2047
 #define numtiles 24*24-1   /*number of tiles displayed on screen*/
@@ -497,8 +498,8 @@ void loadlevel(void)
   int x,y,xx,yy,recs, btile;
   char sm[4096];
 
-  strcpy (filename,"LEVEL");
-  itoa (level,st,10);
+  strcpy (filename,"ux0:/data/Catacomb/LEVEL");
+  itoa_catacomb(level,st,10);
   strcat (filename,level);
 
   LoadFile (filename,sm);

@@ -21,8 +21,8 @@
 
 #include <fcntl.h>
 #include <string.h>
-#include <SDL.h>
-#include <SDL_scancode.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_scancode.h>
 
 #include "catdefs.h"
 

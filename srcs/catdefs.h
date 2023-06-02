@@ -50,7 +50,8 @@ static inline dword flatptr(farptr ptr) { return (ptr.seg<<4) + ptr.ofs; }
 #define O_BINARY 0
 #endif
 #ifndef _WIN32
-static inline char *itoa(int value, char* str, int base)
+
+static inline char *itoa_catacomb(int value, char* str, int base)
 {
 	if(base == 16)
 		sprintf(str, "%X", value);
@@ -58,7 +59,7 @@ static inline char *itoa(int value, char* str, int base)
 		sprintf(str, "%d", value);
 	return str;
 }
-static inline char *ltoa(int value, char* str, int base) { return itoa(value, str, base); }
+static inline char *ltoa_catacomb(int value, char* str, int base) { return itoa_catacomb(value, str, base); }
 #endif
 
 #define NUMDEMOS 1

@@ -223,13 +223,13 @@ void loadgrfiles ()
     free (picsexact);
   if (grmode==CGAgr)
   {
-    picsexact = pics = (char *)bloadin("CGACHARS.CA2");
-    installgrfile ("CGAPICS.CA2",0,0);
+    picsexact = pics = (char *)bloadin("ux0:/data/Catacomb/CGACHARS.CA2");
+    installgrfile ("ux0:/data/Catacomb/CGAPICS.CA2",0,0);
   }
   else
   {
-    picsexact = pics = (char *)bloadin("EGACHARS.CA2");
-    installgrfile ("EGAPICS.CA2",0,0);
+    picsexact = pics = (char *)bloadin("ux0:/data/Catacomb/EGACHARS.CA2");
+    installgrfile ("ux0:/data/Catacomb/EGAPICS.CA2",0,0);
   }
 }
 
@@ -462,8 +462,8 @@ void loadlevel(void)
   byte btile;
   char sm[4096],rle[4096];
 
-  strcpy (filename,"LEVEL");
-  itoa (level,st,10);
+  strcpy (filename,"ux0:/data/Catacomb/LEVEL");
+  itoa_catacomb(level,st,10);
   strcat (filename,st);
   strcat (filename,".CA2");
 
@@ -842,7 +842,6 @@ void dotitlepage (void)
   int i;
   drawpic (0,0,TITLEPIC);
   UpdateScreen();
-
   gamestate=intitle;
   for (i=0;i<300;i++)
   {
@@ -934,7 +933,6 @@ void dodemo (void)
   while (!exitdemo)
   {
     dotitlepage ();
-
     if (exitdemo)
       break;
 
@@ -1056,6 +1054,21 @@ US_CheckParm(char *parm,char **strings)
 /*			   */
 /*=========================*/
 
+int stricmp(const char* s1, const char* s2)
+{
+	assert(s1 != NULL);
+	assert(s2 != NULL);
+
+	while (tolower((unsigned char) *s1) == tolower((unsigned char) *s2)) {
+		if (*s1 == '\0')
+			return 0;
+		s1++; s2++;
+	}
+	return (int) tolower((unsigned char) *s1) -
+		(int) tolower((unsigned char) *s2);
+}
+
+
 int _argc;
 char** _argv;
 int main (int argc, char* argv[])
@@ -1141,7 +1154,6 @@ int main (int argc, char* argv[])
   _extension = "CA2";
 
   _setupgame ();
-
   expwin (33,13);
   print ("  Softdisk Publishing presents\n\n");
   print ("          The Catacomb\n\n");
@@ -1170,13 +1182,12 @@ int main (int argc, char* argv[])
 	 playloop ();
 	 if (!indemo)
 	 {
-		exitdemo = false;
-		if (level > numlevels)
-	doendpage ();		// finished all levels
-		gameover ();
+	 		exitdemo = false;
+	 		if (level > numlevels)
+	 			doendpage ();		// finished all levels
+	 		gameover ();
 	 }
   }
-  
   return 0;
 }
 

@@ -16,6 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_gamecontroller.h>
+#include <SDL2/SDL_scancode.h>
+#include <string.h>
 #define CATALOG
 
 #ifdef _MSC_VER
@@ -76,6 +80,116 @@ joyinfo_t joystick[3];
 =======================
 */
 
+int get_vita()
+{
+	SDL_Event event;
+	int cycle;
+
+	while (1145)
+	{
+		UpdateScreen();
+		SDL_PollEvent(&event);
+		if (event.type == SDL_CONTROLLERBUTTONDOWN)
+		{
+			if (event.cbutton.button == SDL_CONTROLLER_BUTTON_A)
+				return 1;
+			if (event.cbutton.button == SDL_CONTROLLER_BUTTON_B)
+				return 0;
+		}
+	}
+}
+
+void dofkeys_vita(int key)
+{
+  int handle;
+  switch (key)
+  {
+	  case SDL_SCANCODE_F1:			// F1
+		  clearkeys ();
+		  help ();
+		  break;
+    case SDL_SCANCODE_F2:          	// F2
+      clearkeys ();
+      expwin (18,2);
+      print ("RESET GAME\n(Y (X) / N (O))?");
+      if (get_vita())
+		  resetgame = true;
+      break;
+    case SDL_SCANCODE_F4:			// F4
+      clearkeys ();
+      expwin (22,5);
+      strcpy (str,"ux0:/data/Catacomb/GAME0.CA2");
+	  if (_Verify(str))
+	  {
+		  print ("\nGame exists, overwrite\n(Y(X) / N(O))?");
+		  ch=get_vita();
+		  if (ch!=1)
+			  break;
+		  sx=leftedge;
+		  print ("                    ");
+		  sy--;
+		  sx=leftedge;
+		  print ("                    ");
+		  sx=leftedge;
+		  sy--;
+	  }
+	  if ((handle = open(str, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE)) == -1)
+		  return;
+	  write(handle, &saveitems, sizeof(items));
+	  write(handle, &savescore, sizeof(score));
+	  write(handle, &level, sizeof(level));
+	  write(handle, &saveo[0],sizeof(o[0]));
+
+	  close(handle);
+	  print ("\nGame saved.  Hit F5   \n");
+	  print ("when you wish to\n");
+	  print ("restart the game.");
+	  get();
+	  break;
+
+	  case SDL_SCANCODE_F5:			// F5
+		  clearkeys ();
+		  strcpy (str,"ux0:/data/Catacomb/GAME0.CA2");
+		  if ((handle = open(str, O_RDONLY | O_BINARY, S_IWRITE | S_IREAD)) == -1)
+		  {
+			  print ("\nGame not found.");
+			  get();
+			  break;
+		  }
+		  read(handle, &items, sizeof(items));
+		  read(handle, &score, sizeof(score));
+		  read(handle, &level, sizeof(level));
+		  read(handle, &o[0],sizeof(o[0]));
+		  close(handle);
+		  exitdemo = true;
+		  if (indemo != notdemo)
+			  playdone = true;
+		  drawside ();		// draw score, icons, etc
+		  leveldone = true;
+		  break;
+	  case SDL_SCANCODE_F9:			// F9
+		  clearkeys ();
+		  expwin (7,1);
+		  print ("PAUSED");
+		  get ();
+		  break;
+	  case SDL_SCANCODE_F10:			// F10
+		  clearkeys ();
+		  expwin (19,1);
+		  print ("QUIT (Y(X) / N(O))?");
+		  if (get_vita())
+			  _quit ("");
+		  break;
+
+	  default:
+		  return;
+  }
+
+  clearold ();
+  clearkeys ();
+  repaintscreen ();
+}
+
 void SetupKBD ()
 {
  unsigned i;
@@ -97,6 +211,85 @@ void ProcessEvents ()
 		else if(event.type == SDL_KEYUP)
 		{
 			keydown[event.key.keysym.scancode] = false;
+		}
+		else if (event.type == SDL_CONTROLLERBUTTONDOWN)
+		{
+			switch (event.cbutton.button)
+			{
+				case SDL_CONTROLLER_BUTTON_A:
+					keydown[SDL_SCANCODE_SPACE] = true;
+					break;
+				case SDL_CONTROLLER_BUTTON_B:
+					keydown[SDL_SCANCODE_LCTRL] = true;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_UP:
+					keydown[SDL_SCANCODE_UP] = true;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+					keydown[SDL_SCANCODE_DOWN] = true;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+					keydown[SDL_SCANCODE_LEFT] = true;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+					keydown[SDL_SCANCODE_RIGHT] = true;
+					break;
+				case SDL_CONTROLLER_BUTTON_Y:
+					dofkeys_vita(SDL_SCANCODE_F10);
+					break;
+				case SDL_CONTROLLER_BUTTON_X:
+					dofkeys_vita(SDL_SCANCODE_F2);
+					break;
+				case SDL_CONTROLLER_BUTTON_BACK:
+					dofkeys_vita(SDL_SCANCODE_F1);
+					break;
+				case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+					dofkeys_vita(SDL_SCANCODE_F4);
+					break;
+				case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+					dofkeys_vita(SDL_SCANCODE_F5);
+					break;
+				case SDL_CONTROLLER_BUTTON_START:
+					dofkeys_vita(SDL_SCANCODE_F9);
+					break;
+			}
+			lastkey = event.cbutton.button;
+		}
+		else if (event.type == SDL_CONTROLLERBUTTONUP)
+		{
+			switch (event.cbutton.button)
+			{
+				case SDL_CONTROLLER_BUTTON_A:
+					keydown[SDL_SCANCODE_SPACE] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_B:
+					keydown[SDL_SCANCODE_LCTRL] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_UP:
+					keydown[SDL_SCANCODE_UP] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+					keydown[SDL_SCANCODE_DOWN] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+					keydown[SDL_SCANCODE_LEFT] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+					keydown[SDL_SCANCODE_RIGHT] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_START:
+					keydown[SDL_SCANCODE_ESCAPE] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_BACK:
+					keydown[SDL_SCANCODE_F1] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+					keydown[SDL_SCANCODE_F4] = false;
+					break;
+				case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+					keydown[SDL_SCANCODE_F5] = false;
+					break;
+			}
 		}
 		else if(event.type == SDL_MOUSEMOTION)
 		{
@@ -519,8 +712,8 @@ void LoadDemo (int demonum)
 {
   char st2[5];
 
-  strcpy (str,"DEMO");
-  itoa (demonum,st2,10);
+  strcpy (str,"ux0:/data/Catacomb/DEMO");
+  itoa_catacomb(demonum,st2,10);
   strcat (str,st2);
   strcat (str,".");
   strcat (str,_extension);
@@ -535,8 +728,8 @@ void SaveDemo (int demonum)
 {
   char st2[5];
 
-  strcpy (str,"DEMO");
-  itoa (demonum,st2,10);
+  strcpy (str,"ux0:/data/Catacomb/DEMO");
+  itoa_catacomb(demonum,st2,10);
   strcat (str,st2);
   strcat (str,".");
   strcat (str,_extension);
@@ -827,6 +1020,12 @@ int bioskey(int cmd)
 				return lastkey = event.key.keysym.scancode;
 			return event.key.keysym.scancode;
 		}
+		if (event.type == SDL_CONTROLLERBUTTONDOWN)
+		{
+			if(cmd == 1)
+				return lastkey = event.cbutton.button;
+			return event.cbutton.button;
+		}
 	}
 	return lastkey;
 }
@@ -944,13 +1143,13 @@ void printchartile (const char *str)
 
 void printint (int val)
 {
-  itoa(val,str,10);
+  itoa_catacomb(val,str,10);
   print (str);
 }
 
 void printlong (long val)
 {
-  ltoa(val,str,10);
+  ltoa_catacomb(val,str,10);
   print (str);
 }
 
@@ -1207,7 +1406,7 @@ void _loadctrls (void)
 {
   int handle;
 
-  strcpy (str,"CTLPANEL.");
+  strcpy (str,"ux0:/data/Catacomb/CTLPANEL.");
   strcat (str,_extension);
   if ((handle = open(str, O_RDONLY | O_BINARY, S_IWRITE | S_IREAD)) == -1)
   //
@@ -1226,6 +1425,7 @@ void _loadctrls (void)
     MouseSensitivity = 5;
 
     key[north] = SDL_SCANCODE_UP;
+    key[north] = SDL_CONTROLLERBUTTONUP;
     key[northeast] = SDL_SCANCODE_PAGEUP;
     key[east] = SDL_SCANCODE_RIGHT;
     key[southeast] = SDL_SCANCODE_PAGEDOWN;
@@ -1277,7 +1477,7 @@ void _savectrls (void)
   int handle;
   ctlpaneltype ctlpanel;
 
-  strcpy (str,"CTLPANEL.");
+  strcpy (str,"ux0:/data/Catacomb/CTLPANEL.");
   strcat (str,_extension);
 
   if ((handle = open(str, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE)) == -1)
@@ -1317,7 +1517,7 @@ void _loadhighscores (void)
 {
   int i;
 
-  strcpy (str,"SCORES.");
+  strcpy (str,"ux0:/data/Catacomb/SCORES.");
   strcat (str,_extension);
   if (LoadFile(str,(char *)highscores) == 0 )
     for (i=0;i<5;i++)
@@ -1330,7 +1530,7 @@ void _loadhighscores (void)
 
 void _savehighscores (void)
 {
-  strcpy (str,"SCORES.");
+  strcpy (str,"ux0:/data/Catacomb/SCORES.");
   strcat (str,_extension);
   SaveFile(str,(char *)highscores,sizeof (highscores));
 }
@@ -1368,19 +1568,19 @@ void _showhighscores (void)
       sx++;
     if (h<10l)
       sx++;
-    ltoa(h,str,10);
+    ltoa_catacomb(h,str,10);
     print (str);
     sx++;
     if (highscores[i].level<10)
       sx++;
-    itoa(highscores[i].level,str,10);
+    itoa_catacomb(highscores[i].level,str,10);
     print (str);
     sx++;
     print (highscores[i].initials);
     print ("\n\n");
   }
   strcpy (str,"SCORE:");
-  ltoa (score,st2,10);
+  ltoa_catacomb(score,st2,10);
   strcat (str,st2);
 
   _printc (str);
@@ -1408,7 +1608,7 @@ void _checkhighscore (void)
       }
       highscores[i].score = score;
       highscores[i].level = level;
-      strcpy(highscores[i].initials,"   ");
+      strcpy(highscores[i].initials,"VTA");
       break;
     }
 
@@ -1425,6 +1625,12 @@ void _checkhighscore (void)
     sx = screencenterx-17/2+14;
     sy = screencentery-17/2+6+i*2;
     j=0;
+	/* memset(highscores[i].initials, 0, sizeof(highscores[i].initials)); */
+	strcpy(highscores[i].initials, "VTA");
+	drawchar(sx, sy, 'V');
+	drawchar(sx+1, sy, 'T');
+	drawchar(sx+2, sy, 'A');
+	/**
     do
     {
       ch = k = get();
@@ -1442,6 +1648,7 @@ void _checkhighscore (void)
 	  j--;
 	}
     } while (ch != 13);
+	**/
   }
 }
 
@@ -1547,6 +1754,7 @@ void _setupgame (void)
   joystick[1].device = joystick[2].device = -1;
  
   _loadctrls ();
+  ProbeJoysticks();
 
   if (grmode==VGAgr && _vgaok)
     grmode=VGAgr;
@@ -1555,7 +1763,7 @@ void _setupgame (void)
   else
     grmode=CGAgr;
 
-  strcpy (str,"SOUNDS.");
+  strcpy (str,"ux0:/data/Catacomb/SOUNDS.");
   strcat (str,_extension);
 
   SoundData = (SPKRtable *) bloadin (str);
