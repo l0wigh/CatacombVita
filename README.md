@@ -1,4 +1,4 @@
-# Catacom Vita Port
+# Catacomb Vita Port
 
 ![Catacomb Screenshot](https://raw.githubusercontent.com/l0wigh/CatacombVita/master/catacomb.jpg)
 
@@ -30,7 +30,7 @@ This port is based on the Catacomb SDL2 source code
 - L1 (F4) : Save the game
 - R1 (F5) : Load the game
 
-Because of the limited buttons on the vita, I had to cut some features. The important ones are there. I don't think that I'll try to add anything else. The game should be playable and you should not encounter issues, if so open a github issue
+Because of the limited buttons on the vita, I had to cut some features. The important ones are there. I don't think that I'll try to add anything else. The game should be playable and you should not encounter issues, if you do open a github issue
 
 # Special Thanks
 
