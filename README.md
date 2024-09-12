@@ -2,7 +2,7 @@
 
 ![Catacomb Screenshot](https://raw.githubusercontent.com/l0wigh/CatacombVita/master/catacomb.jpg)
 
-Vita port of Catacomb, a Tetris clone. 
+Vita port of Catacomb
 
 This port is based on the Catacomb SDL2 source code
 
