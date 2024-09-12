@@ -14,7 +14,7 @@ This port is based on the Catacomb SDL2 source code
 
 - Inside the install folder locate the ```Catacomb``` directory
 
-- Copy the files from the folder inside ux0:/data/Catacomb or copy the folder direrctly inside ux0:/data (Use USB, more reliable honestly)
+- Copy the files from the folder inside ux0:/data/Catacomb or copy the folder directly inside ux0:/data (Use USB, more reliable)
 
 - Launch the game
 
